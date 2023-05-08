@@ -1,0 +1,4 @@
+{
+  "appName": "Admin 1.0",
+  "loginRedirect": "/dashboard"
+}
