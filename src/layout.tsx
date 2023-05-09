@@ -21,12 +21,13 @@ const ContentPane = styled(Box)(({ theme }) => ({
 
 const HeaderSection = styled(Box)`
   width: 100%;
-  height: 8vh;
+  height: 6vh;
   padding: 12px;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
+  background-color: #fff;
 `;
 
 const FooterSection = styled(Box)`

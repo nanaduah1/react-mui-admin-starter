@@ -1,20 +1,23 @@
-import { Button, Stack } from "@mui/material";
-import { MenuButton } from "../components/button";
+import { Stack } from "@mui/material";
+import { MenuButton, MenuItemButton } from "../components/button";
 
 type MenuBarProps = {
-  signOut?: () => void;
-  username?: string;
+  username: string;
+  menuItems?: { text: string; onClick: () => void }[];
+  userMenu?: { text: string; onClick: () => void }[];
 };
 
 export default function MenuBar(props: MenuBarProps) {
-  const { signOut, username } = props;
-
-  const UserMenuItems = [{ text: "Sign out", onClick: signOut }];
+  const { menuItems, userMenu, username } = props;
 
   return (
     <Stack direction="row" justifyContent="flex-end">
-      <Button variant="text">Menu 1</Button>
-      <MenuButton menuItems={UserMenuItems}>{username ?? "You"}</MenuButton>
+      {menuItems?.map(({ text, onClick }) => (
+        <MenuItemButton variant="text" onClick={onClick}>
+          {text}
+        </MenuItemButton>
+      ))}
+      <MenuButton menuItems={userMenu}>{username ?? "You"}</MenuButton>
     </Stack>
   );
 }

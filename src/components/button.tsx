@@ -47,7 +47,15 @@ export default function ProgressButton(props: ProgressButtonProps) {
   );
 }
 
+export const MenuItemButton = styled(Button)`
+  color: ${(props) => props.color ?? "#0d1983"};
+  text-transform: capitalize;
+  font-weight: 400;
+  font-size: medium;
+`;
+
 type MenuButtonProps = {
+  fontColor?: string;
   children: string | JSX.Element;
   icon?: any;
   menuItems?: { text: string; icon?: JSX.Element; onClick?: () => void }[];
@@ -67,7 +75,7 @@ export function MenuButton(props: MenuButtonProps) {
   const { children, menuItems } = props;
   return (
     <div>
-      <Button
+      <MenuItemButton
         aria-controls={open ? "basic-menu" : undefined}
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
@@ -77,7 +85,7 @@ export function MenuButton(props: MenuButtonProps) {
           {children}
           <AccountCircle />
         </Stack>
-      </Button>
+      </MenuItemButton>
       <Menu
         id="basic-menu"
         anchorEl={anchorEl}
@@ -89,7 +97,9 @@ export function MenuButton(props: MenuButtonProps) {
       >
         {menuItems
           ? menuItems.map(({ text, onClick }) => (
-              <MenuItem onClick={onClick}>{text}</MenuItem>
+              <MenuItem key={text} onClick={onClick}>
+                {text}
+              </MenuItem>
             ))
           : null}
       </Menu>

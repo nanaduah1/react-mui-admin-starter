@@ -22,10 +22,20 @@ export default function AdminLayout(props: AdminLayoutProps) {
     }
   }, [user, loading, navigateTo]);
 
-  const MenuComponent = useMemo(
-    () => <MenuBar signOut={signOut} username={user?.attributes?.given_name} />,
-    [signOut, user?.attributes?.given_name]
-  );
+  const MenuComponent = useMemo(() => {
+    const userMenuItems = [{ text: "Sign out", onClick: signOut }];
+    const otherMenuItems = [
+      { text: "Settings", onClick: () => alert("You clicked Settings") },
+    ];
+
+    return (
+      <MenuBar
+        username={user?.attributes?.given_name}
+        userMenu={userMenuItems}
+        menuItems={otherMenuItems}
+      />
+    );
+  }, [signOut, user?.attributes?.given_name]);
 
   if (loading) {
     return (
