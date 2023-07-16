@@ -8,7 +8,7 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import theme from "./theme";
-import config from "./awsConfig";
+import config from "./configLoader";
 import { Amplify } from "aws-amplify";
 
 Amplify.configure(config);

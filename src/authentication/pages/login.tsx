@@ -7,37 +7,102 @@ import useAuthentication from "../useAuthentication";
 import Spacing from "../../components/space";
 import { CenterContent } from "../../components/centerContent";
 import appConfig from "../../appConfig.json";
+import { Logger } from "../../common/logger";
+import { SetPasswordForm } from "./setPassword";
+import { StatusCard } from "../../components/statusCard";
+
+enum FormStates {
+  Login,
+  SetNewPassword,
+  Success,
+}
+
 export function LoginPage() {
+  const [formsState, setFormState] = useState(FormStates.Login);
   const [credentials, setCredentials] = useState<any>({
     username: "",
     password: "",
   });
+
   const [errorMessage, setErrorMessage] = useState("");
   const navigateTo = useNavigate();
-  const { loading, signIn } = useAuthentication();
+  const { loading, signIn, setupPassword } = useAuthentication();
+  const [tempUser, setTempUser] = useState();
 
   const { username, password } = credentials;
 
   const loginButtonHandler = useCallback(async () => {
     if (username && password) {
-      const response = await signIn(username, password);
-      if (response.challengeName === "NEW_PASSWORD_REQUIRED") {
-        navigateTo("/set-password");
+      try {
+        const response = await signIn(username, password);
+        if (response.challengeName === "NEW_PASSWORD_REQUIRED") {
+          setTempUser(response);
+          setFormState(FormStates.SetNewPassword);
+        } else {
+          navigateTo(appConfig.loginRedirect);
+        }
+      } catch (err) {
+        setErrorMessage("Unable to log in");
+        Logger.error(err);
       }
-      navigateTo(appConfig.loginRedirect);
     } else {
       setErrorMessage("Enter username and password");
     }
   }, [username, password, navigateTo, signIn]);
 
+  const setPasswordButtonHandler = useCallback(
+    async (password: string) => {
+      try {
+        await setupPassword(tempUser, password);
+        setFormState(FormStates.Success);
+      } catch (err) {
+        setErrorMessage("Unable to set password");
+        Logger.error(err);
+      }
+    },
+    [tempUser, setErrorMessage, setupPassword]
+  );
+
   const onInputChanged = useCallback(
     (field: string, value: any) => {
       const updatedCredentials = { ...credentials, [field]: value };
-      console.log(updatedCredentials);
       setCredentials(updatedCredentials);
     },
     [setCredentials, credentials]
   );
+
+  const resetForm = useCallback(() => {
+    setErrorMessage("");
+    setTempUser(undefined);
+    setFormState(FormStates.Login);
+  }, [setErrorMessage, setFormState, setTempUser]);
+
+  if (formsState === FormStates.SetNewPassword) {
+    return (
+      <SetPasswordForm
+        onSubmit={setPasswordButtonHandler}
+        errorMessage={errorMessage}
+        setErrorMessage={setErrorMessage}
+        loading={loading}
+      />
+    );
+  }
+  if (formsState === FormStates.Success) {
+    return (
+      <AuthenticationLayout>
+        <CenterContent>
+          <StatusCard
+            severity="success"
+            message="Your password has been accepted."
+            secondaryAction={{
+              text: "Continue",
+              onClick: resetForm,
+            }}
+          />
+        </CenterContent>
+      </AuthenticationLayout>
+    );
+  }
 
   return (
     <LoginForm
@@ -67,9 +132,13 @@ function LoginForm(props: LoginFormProps) {
     <AuthenticationLayout>
       <CenterContent>
         <Box>
-          <Typography variant="h5">Login</Typography>
+          <Typography variant="h5">Sign in</Typography>
 
-          {errorMessage && <Alert color="error">{errorMessage}</Alert>}
+          {errorMessage && (
+            <Alert severity="error" color="error">
+              {errorMessage}
+            </Alert>
+          )}
           <TextField
             variant="outlined"
             margin="normal"

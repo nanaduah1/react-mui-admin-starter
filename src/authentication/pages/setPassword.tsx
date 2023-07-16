@@ -1,22 +1,23 @@
 import { Typography, Alert, Box } from "@mui/material";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useState } from "react";
 import { CenterContent } from "../../components/centerContent";
 import AuthenticationLayout from "../layout";
 import { NewPassword } from "../../components/newPassword";
 import ProgressButton from "../../components/button";
-import useAuthentication from "../useAuthentication";
-import appConfig from "../../appConfig.json";
 
-export function SetPasswordPage() {
+type SetPasswordFormProps = {
+  onSubmit: (password: string) => void;
+  loading: boolean;
+  errorMessage: string;
+  setErrorMessage: (msg: string) => void;
+};
+
+export function SetPasswordForm(props: SetPasswordFormProps) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
-  const { loading, user, setupPassword } = useAuthentication();
+  const { onSubmit, errorMessage, setErrorMessage, loading } = props;
 
-  const navigateTo = useNavigate();
-
-  const setPasswordButtonHandler = async () => {
+  const setPasswordButtonHandler = useCallback(async () => {
     if (!password) {
       setErrorMessage("Enter password");
       return;
@@ -26,10 +27,8 @@ export function SetPasswordPage() {
       setErrorMessage("Password did not match");
       return;
     }
-
-    await setupPassword(user, password);
-    navigateTo(appConfig.loginRedirect);
-  };
+    onSubmit(password);
+  }, [onSubmit, password, confirmPassword, setErrorMessage]);
 
   return (
     <AuthenticationLayout>
@@ -37,7 +36,11 @@ export function SetPasswordPage() {
         <Box>
           <Typography variant="h5">Set new password</Typography>
 
-          {errorMessage && <Alert color="error">{errorMessage}</Alert>}
+          {errorMessage && (
+            <Alert severity="error" color="error">
+              {errorMessage}
+            </Alert>
+          )}
 
           <NewPassword
             password={password}

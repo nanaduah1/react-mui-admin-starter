@@ -8,6 +8,7 @@ import useAuthentication from "../useAuthentication";
 import { EnterOTPForm } from "../../components/otpForm";
 import Spacing from "../../components/space";
 import { NewPassword } from "../../components/newPassword";
+import { Logger } from "../../common/logger";
 
 const FormStates = {
   Initial: "initial",
@@ -27,14 +28,19 @@ export function ForgotPasswordPage() {
 
   const resetButtonHandler = useCallback(async () => {
     if (username) {
-      await forgotPassword(username);
-      setFormMode(FormStates.EnterCode);
+      try {
+        await forgotPassword(username);
+        setFormMode(FormStates.EnterCode);
+      } catch (err) {
+        setErrorMessage("Unable send your request");
+        Logger.error(err);
+      }
     } else {
       setErrorMessage("Enter username and password");
     }
   }, [setFormMode, forgotPassword, username]);
 
-  const sendNewPasswordButtonHandler = useCallback(async () => {
+  const setNewPasswordButtonHandler = useCallback(async () => {
     if (!otp) {
       setErrorMessage("Enter the code we sent you");
       return;
@@ -49,9 +55,13 @@ export function ForgotPasswordPage() {
       setErrorMessage("Your passwords did not match");
       return;
     }
-
-    await confirmForgotPassword(otp, username, password);
-    navigateTo("/");
+    try {
+      await confirmForgotPassword(otp, username, password);
+      navigateTo("/");
+    } catch (err) {
+      setErrorMessage("Unable to set new password");
+      Logger.error(err);
+    }
   }, [
     username,
     otp,
@@ -88,7 +98,7 @@ export function ForgotPasswordPage() {
         {formMode === FormStates.EnterCode ? (
           <EnterOTPForm
             extraFields={NewPasswordFields}
-            onSubmit={sendNewPasswordButtonHandler}
+            onSubmit={setNewPasswordButtonHandler}
             otp={otp}
             setOTP={setOTP}
             errorMessage={errorMessage}
@@ -117,7 +127,11 @@ function ForgotPasswordForm(props: ForgotPasswordFormProps) {
     <Box>
       <Typography variant="h5">Forgot password</Typography>
 
-      {errorMessage && <Alert color="error">{errorMessage}</Alert>}
+      {errorMessage && (
+        <Alert severity="error" color="error">
+          {errorMessage}
+        </Alert>
+      )}
       <TextField
         variant="outlined"
         margin="normal"

@@ -9,7 +9,7 @@ const MainContent = styled(Box)(({ theme }) => ({
   height: "100%",
   display: "flex",
   flexDirection: "column",
-  [theme.breakpoints.up("sm")]: {
+  [theme.breakpoints.up("lg")]: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -19,7 +19,7 @@ const MainContent = styled(Box)(({ theme }) => ({
 const BrandImageSection = styled(Box)(({ theme }) => ({
   width: "100%",
   height: "20vh",
-  [theme.breakpoints.up("sm")]: {
+  [theme.breakpoints.up("lg")]: {
     width: "50%",
     height: "100vh",
   },
@@ -28,7 +28,7 @@ const BrandImageSection = styled(Box)(({ theme }) => ({
 const FormSection = styled(Box)(({ theme }) => ({
   width: "100%",
   height: "30vh",
-  [theme.breakpoints.up("md")]: {
+  [theme.breakpoints.up("lg")]: {
     width: "30%",
     height: "100vh",
     display: "flex",
@@ -37,13 +37,17 @@ const FormSection = styled(Box)(({ theme }) => ({
   },
 }));
 
-const LoginFormContainer = styled(Card)`
-  min-height: 25%;
-  background-color: #ffffff;
-  padding: 1rem;
-  margin: 24px;
-  padding: 24px;
-`;
+const LoginFormContainer = styled(Card)(({ theme }) => ({
+  minHeight: "25%",
+  backgroundColor: "#ffffff",
+  margin: "24px",
+  padding: "24px",
+  [theme.breakpoints.up("md")]: {
+    width: "70%",
+    marginLeft: "auto",
+    marginRight: "auto",
+  },
+}));
 
 export default function AuthenticationLayout(props: AuthenticationLayoutProps) {
   const { children } = props;

@@ -5,6 +5,7 @@ import { CenterContent } from "../../components/centerContent";
 import AuthenticationLayout from "../layout";
 import ProgressButton from "../../components/button";
 import useAuthentication from "../useAuthentication";
+import { Logger } from "../../common/logger";
 
 export function ConfirmOtpPage() {
   const [otp, setOTP] = useState("");
@@ -14,8 +15,13 @@ export function ConfirmOtpPage() {
 
   const resetButtonHandler = useCallback(async () => {
     if (otp) {
-      await forgotPassword(otp);
-      navigateTo("/dashboard/contacts");
+      try {
+        await forgotPassword(otp);
+        navigateTo("/dashboard/contacts");
+      } catch (err) {
+        setErrorMessage("Unable to confirm OTP");
+        Logger.error(err);
+      }
     } else {
       setErrorMessage("Enter the code you received");
     }
@@ -27,7 +33,11 @@ export function ConfirmOtpPage() {
         <Box>
           <Typography variant="h5">Forgot password</Typography>
 
-          {errorMessage && <Alert color="error">{errorMessage}</Alert>}
+          {errorMessage && (
+            <Alert severity="error" color="error">
+              {errorMessage}
+            </Alert>
+          )}
           <TextField
             variant="outlined"
             margin="normal"
